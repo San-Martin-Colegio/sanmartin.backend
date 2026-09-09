@@ -11,4 +11,5 @@ export const getDatabaseConfig = (configService: ConfigService): TypeOrmModuleOp
   autoLoadEntities: true,
   synchronize: configService.get<string>('DB_SYNC', 'true') === 'true',
   logging: configService.get<string>('NODE_ENV') === 'development',
+  ssl: configService.get<string>('DB_SSL') === 'require' ? { rejectUnauthorized: false } : false,
 });
