@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "biomejs.biome",
+    "esbenp.prettier-vscode",
+    "firsttris.vscode-jest-runner",
+    "humao.rest-client"
+  ]
+}
