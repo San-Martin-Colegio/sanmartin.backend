@@ -16,4 +16,8 @@ export class FilterInventoryDto {
   @IsOptional()
   @IsString()
   status?: string;
+
+  @IsOptional()
+  @IsString()
+  assetType?: string;
 }

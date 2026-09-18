@@ -16,6 +16,10 @@ export class CreateInventoryDto {
 
   @IsOptional()
   @IsString()
+  assetType?: string;
+
+  @IsOptional()
+  @IsString()
   status?: string; // 'Bueno' | 'Regular' | 'Malo'
 
   @IsOptional()
