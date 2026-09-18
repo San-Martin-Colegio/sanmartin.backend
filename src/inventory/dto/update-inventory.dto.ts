@@ -16,6 +16,10 @@ export class UpdateInventoryDto {
 
   @IsOptional()
   @IsString()
+  assetType?: string;
+
+  @IsOptional()
+  @IsString()
   status?: string;
 
   @IsOptional()

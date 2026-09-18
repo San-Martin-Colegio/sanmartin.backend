@@ -32,6 +32,9 @@ export class Category {
   @OneToMany(() => InventoryItem, (item) => item.category)
   inventoryItems: InventoryItem[];
 
+  // Computed on list endpoints; it is not persisted in the database.
+  itemCount?: number;
+
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;
 

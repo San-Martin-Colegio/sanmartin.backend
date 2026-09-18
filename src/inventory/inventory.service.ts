@@ -46,6 +46,10 @@ export class InventoryService {
       qb.andWhere('item.status = :status', { status: filter.status });
     }
 
+    if (filter.assetType) {
+      qb.andWhere('item.assetType = :assetType', { assetType: filter.assetType });
+    }
+
     return qb.getMany();
   }
 

@@ -27,6 +27,9 @@ export class InventoryItem {
   @Column({ type: 'int', default: 1 })
   quantity: number;
 
+  @Column({ name: 'asset_type', default: 'material' })
+  assetType: string; // 'material' | 'computer'
+
   @Column({ default: 'Bueno' })
   status: string; // 'Bueno' | 'Regular' | 'Malo'
 

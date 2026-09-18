@@ -14,11 +14,21 @@ export class CategoriesService {
 
   async findAll(groupId?: number): Promise<Category[]> {
     const whereClause = groupId ? { groupId } : {};
-    return this.categoryRepository.find({
-      where: whereClause,
-      relations: ['group'],
-      order: { name: 'ASC' },
-    });
+    const result = await this.categoryRepository
+      .createQueryBuilder('category')
+      .leftJoinAndSelect('category.group', 'group')
+      .leftJoin('category.inventoryItems', 'item')
+      .addSelect('COALESCE(SUM(item.quantity), 0)', 'itemCount')
+      .where(groupId ? 'category.groupId = :groupId' : '1 = 1', { groupId })
+      .groupBy('category.id')
+      .addGroupBy('group.id')
+      .orderBy('category.name', 'ASC')
+      .getRawAndEntities();
+
+    return result.entities.map((category, index) => ({
+      ...category,
+      itemCount: Number(result.raw[index]?.itemCount ?? 0),
+    }));
   }
 
   async findOne(id: number): Promise<Category> {
