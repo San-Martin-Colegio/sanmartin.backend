@@ -204,10 +204,9 @@ async function runMigration() {
 
   // Verificar si se necesita inicializar usuario administrador por defecto
   const userCount = await userRepo.count();
-  if (userCount === 0) {
-    console.log('🌱 Creando usuario administrador inicial (admin / admin1234)...');
-    const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync('admin1234', salt);
+  if (userCount === 0 && process.env.ADMIN_INITIAL_PASSWORD) {
+    console.log('🌱 Creando usuario administrador inicial...');
+    const hash = bcrypt.hashSync(process.env.ADMIN_INITIAL_PASSWORD, 10);
     await userRepo.save(
       userRepo.create({
         username: 'admin',
@@ -215,6 +214,8 @@ async function runMigration() {
         fullName: 'Administrador General',
       }),
     );
+  } else if (userCount === 0) {
+    console.warn('No se creó admin: configura ADMIN_INITIAL_PASSWORD.');
   }
 
   // Verificar si se necesita inicializar datos de colegio por defecto

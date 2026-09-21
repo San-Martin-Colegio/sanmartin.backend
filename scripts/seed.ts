@@ -33,23 +33,20 @@ async function seed() {
   const userRepo = dataSource.getRepository(User);
   const schoolRepo = dataSource.getRepository(School);
 
-  // 1. Sembrar o actualizar Admin
+  // 1. Crear Admin solo si no existe y se proporcionó una clave inicial.
   let admin = await userRepo.findOne({ where: { username: 'admin' } });
-  const salt = bcrypt.genSaltSync(10);
-  const hash = bcrypt.hashSync('admin1234', salt);
 
-  if (!admin) {
+  if (!admin && process.env.ADMIN_INITIAL_PASSWORD) {
+    const hash = bcrypt.hashSync(process.env.ADMIN_INITIAL_PASSWORD, 10);
     admin = userRepo.create({
       username: 'admin',
       password: hash,
       fullName: 'Administrador General',
     });
     await userRepo.save(admin);
-    console.log('✅ Usuario admin creado (Usuario: admin | Contraseña: admin1234)');
-  } else {
-    admin.password = hash;
-    await userRepo.save(admin);
-    console.log('✅ Contraseña de usuario admin actualizada a: admin1234');
+    console.log('✅ Usuario admin inicial creado.');
+  } else if (!admin) {
+    console.warn('⚠️ No se creó admin: configura ADMIN_INITIAL_PASSWORD.');
   }
 
   // 2. Sembrar colegio si no existe
