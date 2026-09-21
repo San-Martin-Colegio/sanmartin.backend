@@ -21,9 +21,13 @@ export class UsersService implements OnApplicationBootstrap {
     try {
       const admin = await this.findByUsername('admin');
       if (!admin) {
-        this.logger.log('🌱 Sembrando usuario administrador por defecto (admin / admin1234)...');
+        const initialPassword = process.env.ADMIN_INITIAL_PASSWORD;
+        if (!initialPassword) {
+          this.logger.warn('No existe el usuario admin. Configura ADMIN_INITIAL_PASSWORD para crearlo.');
+          return;
+        }
         const salt = bcrypt.genSaltSync(10);
-        const hash = bcrypt.hashSync('admin1234', salt);
+        const hash = bcrypt.hashSync(initialPassword, salt);
         await this.userRepository.save(
           this.userRepository.create({
             username: 'admin',
@@ -31,16 +35,7 @@ export class UsersService implements OnApplicationBootstrap {
             fullName: 'Administrador General',
           }),
         );
-        this.logger.log('✅ Usuario administrador creado con éxito (usuario: admin | clave: admin1234).');
-      } else {
-        const isValid = bcrypt.compareSync('admin1234', admin.password);
-        if (!isValid) {
-          this.logger.log('🔄 Sincronizando contraseña del usuario admin a admin1234...');
-          const salt = bcrypt.genSaltSync(10);
-          admin.password = bcrypt.hashSync('admin1234', salt);
-          await this.userRepository.save(admin);
-          this.logger.log('✅ Contraseña de admin actualizada a admin1234.');
-        }
+        this.logger.log('Usuario administrador inicial creado.');
       }
     } catch (err) {
       this.logger.warn(`Nota: No se pudo auto-sembrar admin en el arranque (${err.message}). Se sembrará al conectar la BD.`);

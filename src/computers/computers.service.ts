@@ -24,4 +24,9 @@ export class ComputersService {
     await this.computers.update(id, update);
     return this.findOne(id);
   }
+  async remove(id: number) {
+    await this.findOne(id);
+    await this.computers.delete(id);
+    return { message: 'Computadora eliminada correctamente.' };
+  }
 }

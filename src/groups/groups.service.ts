@@ -2,6 +2,8 @@ import { Injectable, NotFoundException, BadRequestException } from '@nestjs/comm
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Group } from './entities/group.entity';
+import { AreaMaterialStock } from '../materials/entities/area-material-stock.entity';
+import { Computer } from '../computers/entities/computer.entity';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 
@@ -10,6 +12,10 @@ export class GroupsService {
   constructor(
     @InjectRepository(Group)
     private readonly groupRepository: Repository<Group>,
+    @InjectRepository(AreaMaterialStock)
+    private readonly stockRepository: Repository<AreaMaterialStock>,
+    @InjectRepository(Computer)
+    private readonly computerRepository: Repository<Computer>,
   ) {}
 
   async findAll(): Promise<Group[]> {
@@ -44,7 +50,13 @@ export class GroupsService {
   async remove(id: number): Promise<{ message: string }> {
     const group = await this.findOne(id);
     if (group.categories && group.categories.length > 0) {
-      throw new BadRequestException('Cannot delete group containing categories');
+      throw new BadRequestException('No se puede eliminar el área: tiene categorías asociadas.');
+    }
+    if (await this.stockRepository.count({ where: { groupId: id } })) {
+      throw new BadRequestException('No se puede eliminar el área: tiene existencias de materiales asociadas.');
+    }
+    if (await this.computerRepository.count({ where: { areaId: id } })) {
+      throw new BadRequestException('No se puede eliminar el área: tiene laptops asociadas.');
     }
     await this.groupRepository.delete(id);
     return { message: 'Group deleted successfully' };
