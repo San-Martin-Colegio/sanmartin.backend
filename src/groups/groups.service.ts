@@ -25,10 +25,11 @@ export class GroupsService {
   ) {}
 
   async findAll(): Promise<Group[]> {
-    return this.groupRepository.find({
-      order: { order: 'ASC', name: 'ASC' },
+    const groups = await this.groupRepository.find({
       relations: ['categories'],
     });
+    const collator = new Intl.Collator('es', { numeric: true, sensitivity: 'base' });
+    return groups.sort((a, b) => collator.compare(a.name, b.name));
   }
 
   async findOne(id: number): Promise<Group> {
