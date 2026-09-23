@@ -166,6 +166,7 @@ async function runMigration() {
             email: t.correo,
             address: t.direccion,
             specialty: t.especialidad,
+            educationLevel: 'Secundaria',
             status: t.estado || 'Activo',
           });
           await teacherRepo.save(teacher);

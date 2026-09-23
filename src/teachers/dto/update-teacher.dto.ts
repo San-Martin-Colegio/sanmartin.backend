@@ -1,4 +1,4 @@
-import { IsOptional, IsString } from 'class-validator';
+import { IsIn, IsOptional, IsString } from 'class-validator';
 
 export class UpdateTeacherDto {
   @IsOptional()
@@ -24,6 +24,10 @@ export class UpdateTeacherDto {
   @IsOptional()
   @IsString()
   specialty?: string;
+
+  @IsOptional()
+  @IsIn(['Inicial', 'Primaria', 'Secundaria', 'Administrativo', 'Directivo'])
+  educationLevel?: string;
 
   @IsOptional()
   @IsString()

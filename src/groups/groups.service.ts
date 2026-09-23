@@ -1,9 +1,11 @@
 import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { Group } from './entities/group.entity';
 import { AreaMaterialStock } from '../materials/entities/area-material-stock.entity';
 import { Computer } from '../computers/entities/computer.entity';
+import { Category } from '../categories/entities/category.entity';
+import { InventoryItem } from '../inventory/entities/inventory-item.entity';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 
@@ -16,6 +18,10 @@ export class GroupsService {
     private readonly stockRepository: Repository<AreaMaterialStock>,
     @InjectRepository(Computer)
     private readonly computerRepository: Repository<Computer>,
+    @InjectRepository(Category)
+    private readonly categoryRepository: Repository<Category>,
+    @InjectRepository(InventoryItem)
+    private readonly inventoryRepository: Repository<InventoryItem>,
   ) {}
 
   async findAll(): Promise<Group[]> {
@@ -49,14 +55,16 @@ export class GroupsService {
 
   async remove(id: number): Promise<{ message: string }> {
     const group = await this.findOne(id);
-    if (group.categories && group.categories.length > 0) {
-      throw new BadRequestException('No se puede eliminar el área: tiene categorías asociadas.');
-    }
     if (await this.stockRepository.count({ where: { groupId: id } })) {
       throw new BadRequestException('No se puede eliminar el área: tiene existencias de materiales asociadas.');
     }
     if (await this.computerRepository.count({ where: { areaId: id } })) {
       throw new BadRequestException('No se puede eliminar el área: tiene laptops asociadas.');
+    }
+    const categoryIds = (group.categories || []).map((category) => category.id);
+    if (categoryIds.length > 0) {
+      await this.inventoryRepository.delete({ categoryId: In(categoryIds) });
+      await this.categoryRepository.delete({ groupId: id });
     }
     await this.groupRepository.delete(id);
     return { message: 'Group deleted successfully' };

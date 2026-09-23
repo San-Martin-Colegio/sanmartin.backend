@@ -31,6 +31,9 @@ export class Teacher {
   @Column({ nullable: true })
   specialty: string;
 
+  @Column({ name: 'education_level', default: 'Secundaria' })
+  educationLevel: string;
+
   @Column({ default: 'Activo' })
   status: string; // 'Activo' | 'Inactivo'
 

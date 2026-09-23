@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, ParseIntPipe, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { MaterialsService } from './materials.service';
 import { CreateMaterialDto } from './dto/create-material.dto';
@@ -13,4 +13,5 @@ export class MaterialsController {
   @Post() create(@Body() dto: CreateMaterialDto) { return this.service.create(dto); }
   @Post('stocks') addStock(@Body() dto: CreateStockDto) { return this.service.addStock(dto); }
   @Put('stocks/:id') updateStock(@Param('id', ParseIntPipe) id: number, @Body() dto: UpdateStockDto) { return this.service.updateStock(id, dto); }
+  @Delete('stocks/:id') removeStock(@Param('id', ParseIntPipe) id: number) { return this.service.removeStock(id); }
 }
