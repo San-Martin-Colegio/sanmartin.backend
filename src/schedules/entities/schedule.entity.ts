@@ -25,7 +25,7 @@ export class Schedule {
   day: string; // 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'
 
   @Column({ type: 'int' })
-  block: number; // 1 to 9
+  block: number; // Secundaria: 1-9, Inicial: 1-10, Primaria: 1-12
 
   @Column({ name: 'start_time', nullable: true })
   startTime: string;

@@ -13,7 +13,12 @@ import { Teacher } from '../teachers/entities/teacher.entity';
 import { School } from '../school/entities/school.entity';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
-import { SCHEDULE_BLOCKS, SCHEDULE_DAYS } from './constants/schedule-blocks';
+import {
+  ScheduleMarkerInfo,
+  SCHEDULE_DAYS,
+  getScheduleBlock,
+  getScheduleLayout,
+} from './constants/schedule-blocks';
 
 @Injectable()
 export class SchedulesService {
@@ -53,17 +58,18 @@ export class SchedulesService {
   }
 
   async create(createDto: CreateScheduleDto): Promise<Schedule> {
-    const blockInfo = SCHEDULE_BLOCKS.find((b) => b.block === createDto.block);
-    if (!blockInfo) {
-      throw new BadRequestException('Invalid schedule block');
-    }
-
-    // Check teacher existence
     const teacher = await this.teacherRepository.findOne({
       where: { id: createDto.teacherId },
     });
     if (!teacher) {
       throw new NotFoundException(`Teacher with ID ${createDto.teacherId} not found`);
+    }
+
+    const blockInfo = getScheduleBlock(teacher.educationLevel, createDto.block);
+    if (!blockInfo) {
+      throw new BadRequestException(
+        `El bloque B${createDto.block} no pertenece al horario de ${teacher.educationLevel}.`,
+      );
     }
 
     // Conflict check: same teacher, same day, same block
@@ -96,9 +102,11 @@ export class SchedulesService {
     const targetDay = updateDto.day !== undefined ? updateDto.day : schedule.day;
     const targetBlock = updateDto.block !== undefined ? updateDto.block : schedule.block;
 
-    const blockInfo = SCHEDULE_BLOCKS.find((b) => b.block === targetBlock);
+    const blockInfo = getScheduleBlock(schedule.teacher?.educationLevel, targetBlock);
     if (!blockInfo) {
-      throw new BadRequestException('Invalid schedule block');
+      throw new BadRequestException(
+        `El bloque B${targetBlock} no pertenece al horario de ${schedule.teacher?.educationLevel || 'este docente'}.`,
+      );
     }
 
     // Check conflict excluding current record
@@ -184,16 +192,12 @@ export class SchedulesService {
       };
     });
 
-    SCHEDULE_BLOCKS.forEach((block) => {
-      if (block.block === 4) {
-        const recessRow = sheet.addRow(['', '', '', '', '', '', '']);
-        sheet.mergeCells(`A${recessRow.number}:G${recessRow.number}`);
-        const c = sheet.getCell(`A${recessRow.number}`);
-        c.value = 'RECREO (09:15 - 09:30)';
-        c.font = { bold: true, color: { argb: 'FF374151' } };
-        c.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFE5E7EB' } };
-        c.alignment = { horizontal: 'center', vertical: 'middle' };
-      }
+    const layout = getScheduleLayout(teacher.educationLevel);
+
+    layout.blocks.forEach((block) => {
+      layout.markers
+        .filter((marker) => marker.beforeBlock === block.block)
+        .forEach((marker) => this.addScheduleMarkerRow(sheet, marker));
 
       const rowValues = [
         `B${block.block}`,
@@ -231,6 +235,30 @@ export class SchedulesService {
         }
       });
     });
+  }
+
+  private addScheduleMarkerRow(
+    sheet: ExcelJS.Worksheet,
+    marker: ScheduleMarkerInfo,
+  ): void {
+    const markerRow = sheet.addRow(['', '', '', '', '', '', '']);
+    sheet.mergeCells(`A${markerRow.number}:G${markerRow.number}`);
+    const cell = sheet.getCell(`A${markerRow.number}`);
+    cell.value = marker.label;
+    cell.font = { bold: true, color: { argb: 'FF374151' } };
+    cell.fill = {
+      type: 'pattern',
+      pattern: 'solid',
+      fgColor: {
+        argb:
+          marker.type === 'shift'
+            ? 'FFDBEAFE'
+            : marker.type === 'lunch'
+              ? 'FFFFEDD5'
+              : 'FFFEF3C7',
+      },
+    };
+    cell.alignment = { horizontal: 'center', vertical: 'middle' };
   }
 
   async exportTeacher(teacherId: number, res: Response): Promise<void> {
