@@ -27,6 +27,7 @@ lerna-debug.log*
 *.sql
 !scripts/*.sql
 !migrations/*.sql
+backups/
 
 # Logs
 logs/

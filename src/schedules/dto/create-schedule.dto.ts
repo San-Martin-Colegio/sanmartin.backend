@@ -12,7 +12,7 @@ export class CreateScheduleDto {
   @IsNotEmpty()
   @IsInt()
   @Min(1)
-  @Max(9)
+  @Max(12)
   block: number;
 
   @IsOptional()

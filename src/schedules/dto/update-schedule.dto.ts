@@ -8,7 +8,7 @@ export class UpdateScheduleDto {
   @IsOptional()
   @IsInt()
   @Min(1)
-  @Max(9)
+  @Max(12)
   block?: number;
 
   @IsOptional()
