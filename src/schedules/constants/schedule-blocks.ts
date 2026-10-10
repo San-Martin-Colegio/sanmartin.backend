@@ -57,6 +57,34 @@ export const INITIAL_SCHEDULE_BLOCKS: ScheduleBlockInfo[] = [
   { block: 10, startTime: '16:15', endTime: '17:00' },
 ];
 
+export const ADMINISTRATIVE_SCHEDULE_BLOCKS: ScheduleBlockInfo[] = [
+  { block: 1, startTime: '07:00', endTime: '14:45' },
+  { block: 2, startTime: '07:00', endTime: '15:00' },
+  { block: 3, startTime: '11:00', endTime: '19:00' },
+  { block: 4, startTime: '12:00', endTime: '20:00' },
+  { block: 5, startTime: '15:00', endTime: '23:00' },
+];
+
+export const DIRECTIVE_SCHEDULE_BLOCKS: ScheduleBlockInfo[] = [
+  { block: 1, startTime: '07:00', endTime: '15:00' },
+  { block: 2, startTime: '10:00', endTime: '18:00' },
+];
+
+export const AUXILIARY_SCHEDULE_BLOCKS: ScheduleBlockInfo[] = [
+  { block: 1, startTime: '07:00', endTime: '13:00' },
+  { block: 2, startTime: '08:30', endTime: '14:30' },
+  { block: 3, startTime: '08:45', endTime: '14:45' },
+];
+
+export const SECURITY_SCHEDULE_BLOCKS: ScheduleBlockInfo[] = Array.from(
+  { length: 24 },
+  (_, index) => ({
+    block: index + 1,
+    startTime: `${String(index).padStart(2, '0')}:00`,
+    endTime: `${String(index + 1).padStart(2, '0')}:00`,
+  }),
+);
+
 const SECONDARY_LAYOUT: ScheduleLayout = {
   blocks: SECONDARY_SCHEDULE_BLOCKS,
   markers: [
@@ -87,9 +115,35 @@ const INITIAL_LAYOUT: ScheduleLayout = {
   ],
 };
 
+const ADMINISTRATIVE_LAYOUT: ScheduleLayout = {
+  blocks: ADMINISTRATIVE_SCHEDULE_BLOCKS,
+  markers: [
+    { beforeBlock: 1, label: 'TURNOS DEL PERSONAL ADMINISTRATIVO', type: 'shift' },
+  ],
+};
+
+const DIRECTIVE_LAYOUT: ScheduleLayout = {
+  blocks: DIRECTIVE_SCHEDULE_BLOCKS,
+  markers: [{ beforeBlock: 1, label: 'TURNOS DEL PERSONAL DIRECTIVO', type: 'shift' }],
+};
+
+const AUXILIARY_LAYOUT: ScheduleLayout = {
+  blocks: AUXILIARY_SCHEDULE_BLOCKS,
+  markers: [{ beforeBlock: 1, label: 'TURNOS DEL PERSONAL AUXILIAR', type: 'shift' }],
+};
+
+const SECURITY_LAYOUT: ScheduleLayout = {
+  blocks: SECURITY_SCHEDULE_BLOCKS,
+  markers: [{ beforeBlock: 1, label: 'COBERTURA DE VIGILANCIA: 24 HORAS', type: 'shift' }],
+};
+
 export function getScheduleLayout(educationLevel?: string): ScheduleLayout {
   if (educationLevel === 'Inicial') return INITIAL_LAYOUT;
   if (educationLevel === 'Primaria') return PRIMARY_LAYOUT;
+  if (educationLevel === 'Administrativo') return ADMINISTRATIVE_LAYOUT;
+  if (educationLevel === 'Directivo') return DIRECTIVE_LAYOUT;
+  if (educationLevel === 'Auxiliares') return AUXILIARY_LAYOUT;
+  if (educationLevel === 'Vigilantes') return SECURITY_LAYOUT;
   return SECONDARY_LAYOUT;
 }
 
