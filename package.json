@@ -13,7 +13,8 @@
     "start:prod": "node dist/main",
     "seed": "ts-node scripts/seed.ts",
     "migrate:data": "ts-node scripts/migrate-sqlite-to-postgres.ts",
-    "load:school-data": "ts-node scripts/load-primary-initial-and-classroom-stock.ts"
+    "load:school-data": "ts-node scripts/load-primary-initial-and-classroom-stock.ts",
+    "load:administrative-staff": "ts-node scripts/load-administrative-staff.ts"
   },
   "dependencies": {
     "@nestjs/common": "^10.3.8",

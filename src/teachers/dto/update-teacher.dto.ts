@@ -26,7 +26,15 @@ export class UpdateTeacherDto {
   specialty?: string;
 
   @IsOptional()
-  @IsIn(['Inicial', 'Primaria', 'Secundaria', 'Administrativo', 'Directivo'])
+  @IsIn([
+    'Inicial',
+    'Primaria',
+    'Secundaria',
+    'Administrativo',
+    'Directivo',
+    'Auxiliares',
+    'Vigilantes',
+  ])
   educationLevel?: string;
 
   @IsOptional()
