@@ -34,7 +34,15 @@ export class SchedulesService {
   async findAll(teacherId?: number): Promise<Schedule[]> {
     const qb = this.scheduleRepository
       .createQueryBuilder('schedule')
-      .leftJoinAndSelect('schedule.teacher', 'teacher')
+      .leftJoin('schedule.teacher', 'teacher')
+      .addSelect([
+        'teacher.id',
+        'teacher.firstName',
+        'teacher.lastName',
+        'teacher.specialty',
+        'teacher.educationLevel',
+        'teacher.status',
+      ])
       .orderBy('teacher.lastName', 'ASC')
       .addOrderBy('schedule.day', 'ASC')
       .addOrderBy('schedule.block', 'ASC');
@@ -47,10 +55,19 @@ export class SchedulesService {
   }
 
   async findOne(id: number): Promise<Schedule> {
-    const schedule = await this.scheduleRepository.findOne({
-      where: { id },
-      relations: ['teacher'],
-    });
+    const schedule = await this.scheduleRepository
+      .createQueryBuilder('schedule')
+      .leftJoin('schedule.teacher', 'teacher')
+      .addSelect([
+        'teacher.id',
+        'teacher.firstName',
+        'teacher.lastName',
+        'teacher.specialty',
+        'teacher.educationLevel',
+        'teacher.status',
+      ])
+      .where('schedule.id = :id', { id })
+      .getOne();
     if (!schedule) {
       throw new NotFoundException(`Schedule entry with ID ${id} not found`);
     }

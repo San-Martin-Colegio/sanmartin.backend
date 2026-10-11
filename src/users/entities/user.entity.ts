@@ -14,11 +14,17 @@ export class User {
   @Column({ unique: true })
   username: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @Column({ name: 'full_name' })
   fullName: string;
+
+  @Column({ default: 'admin' })
+  role: string;
+
+  @Column({ name: 'token_version', type: 'int', default: 0 })
+  tokenVersion: number;
 
   @CreateDateColumn({ name: 'created_at' })
   createdAt: Date;

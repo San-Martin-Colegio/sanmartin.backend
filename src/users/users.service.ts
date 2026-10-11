@@ -26,13 +26,14 @@ export class UsersService implements OnApplicationBootstrap {
           this.logger.warn('No existe el usuario admin. Configura ADMIN_INITIAL_PASSWORD para crearlo.');
           return;
         }
-        const salt = bcrypt.genSaltSync(10);
-        const hash = bcrypt.hashSync(initialPassword, salt);
+        const rounds = Number(process.env.BCRYPT_ROUNDS || 12);
+        const hash = await bcrypt.hash(initialPassword, rounds);
         await this.userRepository.save(
           this.userRepository.create({
             username: 'admin',
             password: hash,
             fullName: 'Administrador General',
+            role: 'admin',
           }),
         );
         this.logger.log('Usuario administrador inicial creado.');
@@ -43,7 +44,11 @@ export class UsersService implements OnApplicationBootstrap {
   }
 
   async findByUsername(username: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { username } });
+    return this.userRepository
+      .createQueryBuilder('user')
+      .addSelect('user.password')
+      .where('user.username = :username', { username })
+      .getOne();
   }
 
   async findById(id: number): Promise<User> {
@@ -57,6 +62,14 @@ export class UsersService implements OnApplicationBootstrap {
   async create(userData: Partial<User>): Promise<User> {
     const user = this.userRepository.create(userData);
     return this.userRepository.save(user);
+  }
+
+  async updatePasswordHash(id: number, password: string): Promise<void> {
+    await this.userRepository.update(id, { password });
+  }
+
+  async revokeSessions(id: number): Promise<void> {
+    await this.userRepository.increment({ id }, 'tokenVersion', 1);
   }
 
   async count(): Promise<number> {
