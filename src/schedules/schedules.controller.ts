@@ -15,6 +15,7 @@ import { Response } from 'express';
 import { SchedulesService } from './schedules.service';
 import { CreateScheduleDto } from './dto/create-schedule.dto';
 import { UpdateScheduleDto } from './dto/update-schedule.dto';
+import { FilterSchedulesDto } from './dto/filter-schedules.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -36,9 +37,8 @@ export class SchedulesController {
   }
 
   @Get()
-  findAll(@Query('teacherId') teacherId?: string) {
-    const parsedId = teacherId ? parseInt(teacherId, 10) : undefined;
-    return this.schedulesService.findAll(parsedId);
+  findAll(@Query() query: FilterSchedulesDto) {
+    return this.schedulesService.findAll(query.teacherId);
   }
 
   @Get(':id')

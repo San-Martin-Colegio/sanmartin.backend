@@ -7,6 +7,7 @@ import {
   OneToMany,
 } from 'typeorm';
 import { Schedule } from '../../schedules/entities/schedule.entity';
+import { encryptedTextTransformer } from '../../common/transformers/encrypted-text.transformer';
 
 @Entity('teachers')
 export class Teacher {
@@ -19,13 +20,13 @@ export class Teacher {
   @Column({ name: 'last_name' })
   lastName: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true, transformer: encryptedTextTransformer })
   phone: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true, transformer: encryptedTextTransformer })
   email: string;
 
-  @Column({ nullable: true })
+  @Column({ type: 'text', nullable: true, transformer: encryptedTextTransformer })
   address: string;
 
   @Column({ nullable: true })

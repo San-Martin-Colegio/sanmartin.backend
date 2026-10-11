@@ -16,9 +16,16 @@ export class AuthService {
     if (!user) {
       return null;
     }
-    const isValid = bcrypt.compareSync(pass, user.password);
+    const isValid = await bcrypt.compare(pass, user.password);
     if (!isValid) {
       return null;
+    }
+    const configuredRounds = Number(process.env.BCRYPT_ROUNDS || 12);
+    if (bcrypt.getRounds(user.password) < configuredRounds) {
+      await this.usersService.updatePasswordHash(
+        user.id,
+        await bcrypt.hash(pass, configuredRounds),
+      );
     }
     return user;
   }
@@ -29,7 +36,12 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const payload = { sub: user.id, username: user.username };
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      role: user.role,
+      ver: user.tokenVersion,
+    };
     const accessToken = this.jwtService.sign(payload);
 
     return {
@@ -38,7 +50,12 @@ export class AuthService {
         id: user.id,
         username: user.username,
         fullName: user.fullName,
+        role: user.role,
       },
     };
+  }
+
+  async logout(userId: number): Promise<void> {
+    await this.usersService.revokeSessions(userId);
   }
 }

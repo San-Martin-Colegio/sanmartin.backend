@@ -13,6 +13,7 @@ import {
 import { CategoriesService } from './categories.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
+import { FilterCategoriesDto } from './dto/filter-categories.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @UseGuards(JwtAuthGuard)
@@ -21,9 +22,8 @@ export class CategoriesController {
   constructor(private readonly categoriesService: CategoriesService) {}
 
   @Get()
-  findAll(@Query('groupId') groupId?: string) {
-    const parsedGroupId = groupId ? parseInt(groupId, 10) : undefined;
-    return this.categoriesService.findAll(parsedGroupId);
+  findAll(@Query() query: FilterCategoriesDto) {
+    return this.categoriesService.findAll(query.groupId);
   }
 
   @Get(':id')

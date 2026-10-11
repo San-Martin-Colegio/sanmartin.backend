@@ -1,8 +1,9 @@
-import { IsOptional, IsString, IsInt, Min, Max } from 'class-validator';
+import { IsIn, IsOptional, IsString, IsInt, Min, Max, MaxLength } from 'class-validator';
 
 export class UpdateScheduleDto {
   @IsOptional()
   @IsString()
+  @IsIn(['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes'])
   day?: string;
 
   @IsOptional()
@@ -13,13 +14,16 @@ export class UpdateScheduleDto {
 
   @IsOptional()
   @IsString()
+  @MaxLength(150)
   subject?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(80)
   gradeSection?: string;
 
   @IsOptional()
   @IsString()
+  @MaxLength(120)
   classroom?: string;
 }
